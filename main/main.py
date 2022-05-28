@@ -10,7 +10,9 @@ if __name__ == "__main__":
     window.mainloop()
 
     print(p.retName())
-    p = room.Room()
+    window = Tk()
+    p = room.Room(window)
+    window.mainloop()
 
 
 
