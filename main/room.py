@@ -1,6 +1,7 @@
 from tkinter import *
 import tkinter.messagebox as msgbox
 
+
 class Room():
     def __init__(self):
         self.current_person = [0, 0, 0, 0]
