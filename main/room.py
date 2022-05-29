@@ -13,15 +13,6 @@ class Room():
         self.b4 = None
         self.init_gui()
 
-    def personCheck(self):
-        self.current_person[0] += 1
-        print("{}" .format(self.current_person[0]))
-        if self.current_person[0] >= 4:
-            msgbox.showerror("Denied", "방이 꽉 찼습니다.")
-            if self.current_person[0] == 4:
-                self.b1["bg"] = "grey"
-        self.window.destroy()
-
     def init_gui(self):
         # 윈도우 창
         self.window.title("word chain game")
