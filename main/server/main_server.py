@@ -42,7 +42,7 @@ class Main:
 
     def receive_new_user(self):
         while True:
-            client = so, (ip, port) = self.main_server_socket.accept()
+            so, (ip, port) = self.main_server_socket.accept()
             input_name = so.recv(256).decode('utf-8')
             if input_name in self.user_name_list:
                 so.send("no".encode('utf-8'))
