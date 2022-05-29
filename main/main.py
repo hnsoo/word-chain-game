@@ -14,5 +14,8 @@ if __name__ == "__main__":
     p = room.Room(window)
     window.mainloop()
 
+    window = Tk()
+    p = ingame.Ingame(window)
+    window.mainloop()
 
 
