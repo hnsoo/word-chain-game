@@ -1,5 +1,6 @@
 import socket
 import threading
+import pickle
 
 import room_server
 
@@ -7,6 +8,7 @@ import room_server
 class Main:
     # clients_list = []
     user_name_list = []
+    current_room = [0, 0, 0, 0]
 
     def __init__(self):
         # self.create_rooms()
@@ -45,6 +47,11 @@ class Main:
                     so.send('yes'.encode('utf-8'))
                     print('[IP: {}, PORT: {}] 닉네임 {} 등록 성공'.format(ip, port, user_name))
                 print('user_name_list: {}'.format(self.user_name_list))
+            elif input_data[:8] == '/refresh':
+                # 현재 방 인원 리스트를 직렬화 후 전송
+                so.send(pickle.dumps(self.current_room))
+            # if input_data[:6] == '/room/':
+            #     room_num = input_data[6]
 
     def receive_new_user(self):
         while True:
