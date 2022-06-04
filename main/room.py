@@ -1,4 +1,5 @@
 import socket
+import pickle
 from tkinter import *
 import tkinter.messagebox as msgbox
 
@@ -8,6 +9,7 @@ class Room():
         self.client_socket = client_socket
         self.window = master
         self.current_person = [0, 0, 0, 0]
+        self.current_room = []
         self.bg = None
         self.bg_label = None
         self.refresh = None
@@ -28,7 +30,10 @@ class Room():
         self.bg_label.place(x=0, y=0)
 
         def refresh_click():
-            print('click')
+            self.client_socket.send('/refresh'.encode('utf-8'))
+            buffer = self.client_socket.recv(256)
+            self.current_room = pickle.loads(buffer)
+            print(self.current_room)
 
         def btn_click1():
             self.current_person[0] += 1
