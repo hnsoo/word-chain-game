@@ -8,7 +8,7 @@ import room_server
 class Main:
     # clients_list = []
     user_name_list = []
-    current_room = [0, 0, 0, 0]
+    current_room = [[], [], [], []]     # 예시 [[(so, khs)], [], []]
 
     def __init__(self):
         # self.create_rooms()
@@ -47,12 +47,18 @@ class Main:
                     so.send('yes'.encode('utf-8'))
                     print('[IP: {}, PORT: {}] 닉네임 {} 등록 성공'.format(ip, port, user_name))
                 print('user_name_list: {}'.format(self.user_name_list))
+            # 방 인원 상황 새로고침
             elif input_data[:8] == '/refresh':
                 # 현재 방 인원 리스트를 직렬화 후 전송
                 so.send(pickle.dumps(self.current_room))
+            # 게임방 접속
             elif input_data[:6] == '/room/':
                 room_num = input_data[6]
-                self.current_room[int(room_num)-1] += 1
+                user_name = input_data[7:]
+                self.current_room[int(room_num)-1].append((so, user_name))
+                # 4명이 될경우 게임 시작
+                if len(self.current_room[int(room_num)-1]) == 4:
+                    t = threading.Thread(target=self.start_game, args=room_num)
 
     def receive_new_user(self):
         while True:
@@ -60,6 +66,9 @@ class Main:
             print('[IP: {}, PORT: {}] 접속'.format(ip, port))
             t = threading.Thread(target=self.receive_data, args=(so, ip, port,))
             t.start()
+
+    def start_game(self, room_num):
+        users = self.current_room[room_num]
 
 
 if __name__ == '__main__':

@@ -5,8 +5,9 @@ import tkinter.messagebox as msgbox
 
 
 class Room():
-    def __init__(self, master, client_socket):
+    def __init__(self, master, client_socket, user_name):
         self.client_socket = client_socket
+        self.user_name = user_name
         self.window = master
         self.current_room = []
         self.select_room = 0
@@ -43,7 +44,7 @@ class Room():
                 self.b1["bg"] = "grey"
                 msgbox.showerror("Denied", "방이 꽉 찼습니다.")
             else:
-                self.client_socket.send('/room/1'.encode('utf-8'))
+                self.client_socket.send(('/room/1'+self.user_name).encode('utf-8'))
                 self.select_room = 1
                 self.window.destroy()
 
@@ -52,7 +53,7 @@ class Room():
                 self.b2["bg"] = "grey"
                 msgbox.showerror("Denied", "방이 꽉 찼습니다.")
             else:
-                self.client_socket.send('/room/2'.encode('utf-8'))
+                self.client_socket.send(('/room/2'+self.user_name).encode('utf-8'))
                 self.select_room = 2
                 self.window.destroy()
 
@@ -61,7 +62,7 @@ class Room():
                 self.b3["bg"] = "grey"
                 msgbox.showerror("Denied", "방이 꽉 찼습니다.")
             else:
-                self.client_socket.send('/room/3'.encode('utf-8'))
+                self.client_socket.send(('/room/3'+self.user_name).encode('utf-8'))
                 self.select_room = 3
                 self.window.destroy()
 
@@ -70,7 +71,7 @@ class Room():
                 self.b4["bg"] = "grey"
                 msgbox.showerror("Denied", "방이 꽉 찼습니다.")
             else:
-                self.client_socket.send('/room/4'.encode('utf-8'))
+                self.client_socket.send(('/room/4'+self.user_name).encode('utf-8'))
                 self.select_room = 4
                 self.window.destroy()
 
