@@ -3,26 +3,22 @@ from tkinter import messagebox
 import socket
 import placeholder
 
+
 class Intro:
     client_socket = None
 
-    def __init__(self, master):
+    def __init__(self, master, client_socket):
         self.userName = ""
 
         # 클래스 속성
         self.window = master
+        self.client_socket = client_socket
         self.bg = None
         self.bg_label = None
         self.textbox = None
         self.button = None
         # 클래스 메소드
         self.init_gui()
-
-    def init_socket(self):
-        self.client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        remote_ip = '127.0.0.1'
-        remote_port = 55555
-        self.client_socket.connect((remote_ip, remote_port))
 
     def init_gui(self):
         # 윈도우 창
@@ -51,11 +47,9 @@ class Intro:
             if count != len(self.textbox.get()):
                 messagebox.showwarning("닉네임 양식 오류", "영문, 숫자 최대 10자리로 닉네임을 생성해주세요.")
             else:
-                self.init_socket()
-                self.client_socket.send(self.textbox.get().encode('utf-8'))
+                self.client_socket.send(('/register/'+self.textbox.get()).encode('utf-8'))
                 if self.receive_response():
                     self.userName = self.textbox.get()
-                    self.client_socket.close()
                     self.window.destroy()
                 else:
                     messagebox.showwarning("닉네임 중복 오류", "서버 상에 해당 닉네임이 존재합니다. ")

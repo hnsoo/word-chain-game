@@ -1,4 +1,6 @@
 import socket
+import threading
+
 import room_server
 
 
@@ -18,19 +20,11 @@ class Main:
     #         t = room_server.Room_thread(title)
     #         t.start()
 
-    def check_user_duplication(self, name):
-        if name in self.user_name_list:
-            return False
-        else:
-            # accept
-            self.receive_new_user()
-            return True
-
     def create_listening_server(self):
         # 소켓 생성
         self.main_server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         HOST = '127.0.0.1'
-        PORT = 55555
+        PORT = 10319
         # 소켓 레벨과 데이터 설정
         self.main_server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         # 소켓을 네트워크(주소, 포트)에 연결
@@ -38,27 +32,26 @@ class Main:
         print("Listening for incoming messages..")
         # 최대 20명까지 listen
         self.main_server_socket.listen(20)
-        self.receive_data()
+        self.receive_new_user()
 
-    def receive_data(self):
+    def receive_data(self, so, ip, port):
         while True:
-            so, (ip, port) = self.main_server_socket.accept()
             input_data = so.recv(256).decode('utf-8')
-            if input_data == '/init':
-                so.send("yes".encode('utf-8'))
+            # 닉네임 중복 확인
+            if input_data[:10] == '/register/':
+                user_name = input_data[10:]
+                if user_name not in self.user_name_list:
+                    self.user_name_list.append(user_name)
+                    so.send('yes'.encode('utf-8'))
+                    print('IP: {}, PORT: {}, 닉네임 {} 등록 성공'.format(ip, port, user_name))
+                print('user_name_list: {}'.format(self.user_name_list))
 
     def receive_new_user(self):
         while True:
             so, (ip, port) = self.main_server_socket.accept()
-            input_name = so.recv(256).decode('utf-8')
-            if input_name in self.user_name_list:
-                so.send("no".encode('utf-8'))
-                print('IP: {}, PORT: {} 접속 | no 응답'.format(ip, port))
-            else:
-                so.send("yes".encode('utf-8'))
-                print('IP: {}, PORT: {} 접속 | yes 응답'.format(ip, port))
-                self.user_name_list.append(input_name)
-            print('user_name_list: {}'.format(self.user_name_list))
+            print('IP: {}, PORT: {} 접속'.format(ip, port))
+            t = threading.Thread(target=self.receive_data, args=(so, ip, port,))
+            t.start()
 
 
 if __name__ == '__main__':
