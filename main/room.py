@@ -35,35 +35,24 @@ class Room():
             self.b1.config(text='room1' + '\t\t{}/4\t  '.format(self.current_room[0]))
 
         def btn_click1():
-            self.current_room[0] += 1
-            self.b1.config(text='room1' + '\t\t{}/4\t  '.format(self.current_room[0]))
             if self.current_room[0] == 4:
                 self.b1["bg"] = "grey"
                 msgbox.showerror("Denied", "방이 꽉 찼습니다.")
             self.client_socket.send('/room/1'.encode('utf-8'))
 
         def btn_click2():
-            print("방에 입장하겠습니다")  # 방의 입장 화면으로 넘길 것
-            self.current_room[1] += 1
-            self.b2.config(text='room2' + '\t\t{}/4\t  '.format(self.current_room[1]))
             if self.current_room[1] == 4:
                 self.b2["bg"] = "grey"
                 msgbox.showerror("Denied", "방이 꽉 찼습니다.")
             self.client_socket.send('/room/2'.encode('utf-8'))
 
         def btn_click3():
-            print("방에 입장하겠습니다")  # 방의 입장 화면으로 넘길 것
-            self.current_room[2] += 1
-            self.b3.config(text='room3' + '\t\t{}/4\t  '.format(self.current_room[2]))
             if self.current_room[2] == 4:
                 self.b3["bg"] = "grey"
                 msgbox.showerror("Denied", "방이 꽉 찼습니다.")
             self.client_socket.send('/room/3'.encode('utf-8'))
 
         def btn_click4():
-            print("방에 입장하겠습니다")  # 방의 입장 화면으로 넘길 것
-            self.current_room[3] += 1
-            self.b4.config(text='room4' + '\t\t{}/4\t  '.format(self.current_room[3]))
             if self.current_room[3] == 4:
                 self.b4["bg"] = "grey"
                 msgbox.showerror("Denied", "방이 꽉 찼습니다.")
