@@ -53,9 +53,9 @@ class Main:
                 so.send(pickle.dumps(self.current_room))
             # 게임방 접속
             elif input_data[:6] == '/room/':
-                room_num = input_data[6]
+                room_num = int(input_data[6])
                 user_name = input_data[7:]
-                self.current_room[int(room_num)-1].append((so, user_name))
+                self.current_room[room_num-1].append((so, user_name))
                 t = threading.Thread(target=self.enter_room, args=(room_num, so))
                 t.start()
 
@@ -68,6 +68,9 @@ class Main:
 
     def enter_room(self, room_num, so):
         users = self.current_room[room_num]
+        # 유저 이름 리스트 추출
+        users_name = [oj[1] for oj in users]
+        so.send(pickle.dumps(users_name))
 
 
 if __name__ == '__main__':
