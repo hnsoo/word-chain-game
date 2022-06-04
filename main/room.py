@@ -1,9 +1,11 @@
+import socket
 from tkinter import *
 import tkinter.messagebox as msgbox
 
 
 class Room():
     def __init__(self, master):
+        self.client_socket = None
         self.window = master
         self.current_person = [0, 0, 0, 0]
         self.bg = None
@@ -13,6 +15,12 @@ class Room():
         self.b3 = None
         self.b4 = None
         self.init_gui()
+
+    def init_socket(self):
+        self.client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        remote_ip = '127.0.0.1'
+        remote_port = 55555
+        self.client_socket.connect((remote_ip, remote_port))
 
     def init_gui(self):
         # 윈도우 창
@@ -30,7 +38,7 @@ class Room():
             if self.current_person[0] == 4:
                 self.b1["bg"] = "grey"
                 msgbox.showerror("Denied", "방이 꽉 찼습니다.")
-            self.window.destroy()
+            self.client_socket.send('req-room1'.encode('utf-8'))
 
         def btn_click2():
             print("방에 입장하겠습니다")  # 방의 입장 화면으로 넘길 것
@@ -39,7 +47,7 @@ class Room():
             if self.current_person[1] == 4:
                 self.b2["bg"] = "grey"
                 msgbox.showerror("Denied", "방이 꽉 찼습니다.")
-            self.window.destroy()
+            self.client_socket.send('req-room2'.encode('utf-8'))
 
         def btn_click3():
             print("방에 입장하겠습니다")  # 방의 입장 화면으로 넘길 것
@@ -48,7 +56,7 @@ class Room():
             if self.current_person[2] == 4:
                 self.b3["bg"] = "grey"
                 msgbox.showerror("Denied", "방이 꽉 찼습니다.")
-            self.window.destroy()
+            self.client_socket.send('req-room3'.encode('utf-8'))
 
         def btn_click4():
             print("방에 입장하겠습니다")  # 방의 입장 화면으로 넘길 것
@@ -57,7 +65,7 @@ class Room():
             if self.current_person[3] == 4:
                 self.b4["bg"] = "grey"
                 msgbox.showerror("Denied", "방이 꽉 찼습니다.")
-            self.window.destroy()
+            self.client_socket.send('req-room4'.encode('utf-8'))
 
         self.b1 = Button(self.window, text='room1' + '\t\t{}/4\t  '.format(self.current_person[0]), anchor='e',
                          width=45, height=5,

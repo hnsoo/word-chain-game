@@ -12,11 +12,11 @@ class Main:
         # bind and listen
         self.create_listening_server()
 
-    def create_rooms(self):
-        for i in range(4):
-            title = "Room {}".format(i)
-            t = room_server.Room_thread(title)
-            t.start()
+    # def create_rooms(self):
+    #     for i in range(4):
+    #         title = "Room {}".format(i)
+    #         t = room_server.Room_thread(title)
+    #         t.start()
 
     def check_user_duplication(self, name):
         if name in self.user_name_list:
@@ -38,7 +38,14 @@ class Main:
         print("Listening for incoming messages..")
         # 최대 20명까지 listen
         self.main_server_socket.listen(20)
-        self.receive_new_user()
+        self.receive_data()
+
+    def receive_data(self):
+        while True:
+            so, (ip, port) = self.main_server_socket.accept()
+            input_data = so.recv(256).decode('utf-8')
+            if input_data == '/init':
+                so.send("yes".encode('utf-8'))
 
     def receive_new_user(self):
         while True:

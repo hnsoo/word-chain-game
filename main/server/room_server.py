@@ -1,6 +1,7 @@
 import threading
 import socket
 
+
 class Room_thread(threading.Thread):
     def __init__(self, title):
         super().__init__()
@@ -10,11 +11,11 @@ class Room_thread(threading.Thread):
         # 룸 생성 로직
         room = Room()
 
+
 class Room:
     def __init__(self):
         self.room_server_socket = None
         self.create_listening_server()
-
 
     def create_listening_server(self):
         # 소켓 생성
