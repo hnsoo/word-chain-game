@@ -4,8 +4,8 @@ import tkinter.messagebox as msgbox
 
 
 class Room():
-    def __init__(self, master):
-        self.client_socket = None
+    def __init__(self, master, client_socket):
+        self.client_socket = client_socket
         self.window = master
         self.current_person = [0, 0, 0, 0]
         self.bg = None
@@ -15,12 +15,6 @@ class Room():
         self.b3 = None
         self.b4 = None
         self.init_gui()
-
-    def init_socket(self):
-        self.client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        remote_ip = '127.0.0.1'
-        remote_port = 55555
-        self.client_socket.connect((remote_ip, remote_port))
 
     def init_gui(self):
         # 윈도우 창

@@ -43,13 +43,13 @@ class Main:
                 if user_name not in self.user_name_list:
                     self.user_name_list.append(user_name)
                     so.send('yes'.encode('utf-8'))
-                    print('IP: {}, PORT: {}, 닉네임 {} 등록 성공'.format(ip, port, user_name))
+                    print('[IP: {}, PORT: {}] 닉네임 {} 등록 성공'.format(ip, port, user_name))
                 print('user_name_list: {}'.format(self.user_name_list))
 
     def receive_new_user(self):
         while True:
             so, (ip, port) = self.main_server_socket.accept()
-            print('IP: {}, PORT: {} 접속'.format(ip, port))
+            print('[IP: {}, PORT: {}] 접속'.format(ip, port))
             t = threading.Thread(target=self.receive_data, args=(so, ip, port,))
             t.start()
 

@@ -15,5 +15,5 @@ if __name__ == "__main__":
 
     print(p.retName())
     window = Tk()
-    p = room.Room(window)
+    p = room.Room(window, client_socket)
     window.mainloop()
