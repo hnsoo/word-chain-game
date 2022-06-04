@@ -50,8 +50,9 @@ class Main:
             elif input_data[:8] == '/refresh':
                 # 현재 방 인원 리스트를 직렬화 후 전송
                 so.send(pickle.dumps(self.current_room))
-            # if input_data[:6] == '/room/':
-            #     room_num = input_data[6]
+            elif input_data[:6] == '/room/':
+                room_num = input_data[6]
+                self.current_room[int(room_num)-1] += 1
 
     def receive_new_user(self):
         while True:
