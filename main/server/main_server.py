@@ -56,9 +56,8 @@ class Main:
                 room_num = input_data[6]
                 user_name = input_data[7:]
                 self.current_room[int(room_num)-1].append((so, user_name))
-                # 4명이 될경우 게임 시작
-                if len(self.current_room[int(room_num)-1]) == 4:
-                    t = threading.Thread(target=self.start_game, args=room_num)
+                t = threading.Thread(target=self.enter_room, args=(room_num, so))
+                t.start()
 
     def receive_new_user(self):
         while True:
@@ -67,7 +66,7 @@ class Main:
             t = threading.Thread(target=self.receive_data, args=(so, ip, port,))
             t.start()
 
-    def start_game(self, room_num):
+    def enter_room(self, room_num, so):
         users = self.current_room[room_num]
 
 
