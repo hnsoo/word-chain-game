@@ -10,10 +10,11 @@ if __name__ == "__main__":
 
     # 게임 처음 화면
     window = Tk()
-    p = intro.Intro(window, client_socket)
+    i = intro.Intro(window, client_socket)
     window.mainloop()
 
-    print(p.retName())
+    print(i.retName())
     window = Tk()
-    p = room.Room(window, client_socket)
+    r = room.Room(window, client_socket)
+    r.ret_select_room()
     window.mainloop()

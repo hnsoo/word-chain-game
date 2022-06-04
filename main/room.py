@@ -9,6 +9,7 @@ class Room():
         self.client_socket = client_socket
         self.window = master
         self.current_room = []
+        self.select_room = 0
         self.bg = None
         self.bg_label = None
         self.refresh = None
@@ -17,6 +18,9 @@ class Room():
         self.b3 = None
         self.b4 = None
         self.init_gui()
+
+    def ret_select_room(self):
+        return self.select_room
 
     def init_gui(self):
         # 윈도우 창
@@ -38,25 +42,37 @@ class Room():
             if self.current_room[0] == 4:
                 self.b1["bg"] = "grey"
                 msgbox.showerror("Denied", "방이 꽉 찼습니다.")
-            self.client_socket.send('/room/1'.encode('utf-8'))
+            else:
+                self.client_socket.send('/room/1'.encode('utf-8'))
+                self.select_room = 1
+                self.window.destroy()
 
         def btn_click2():
             if self.current_room[1] == 4:
                 self.b2["bg"] = "grey"
                 msgbox.showerror("Denied", "방이 꽉 찼습니다.")
-            self.client_socket.send('/room/2'.encode('utf-8'))
+            else:
+                self.client_socket.send('/room/2'.encode('utf-8'))
+                self.select_room = 2
+                self.window.destroy()
 
         def btn_click3():
             if self.current_room[2] == 4:
                 self.b3["bg"] = "grey"
                 msgbox.showerror("Denied", "방이 꽉 찼습니다.")
-            self.client_socket.send('/room/3'.encode('utf-8'))
+            else:
+                self.client_socket.send('/room/3'.encode('utf-8'))
+                self.select_room = 3
+                self.window.destroy()
 
         def btn_click4():
             if self.current_room[3] == 4:
                 self.b4["bg"] = "grey"
                 msgbox.showerror("Denied", "방이 꽉 찼습니다.")
-            self.client_socket.send('/room/4'.encode('utf-8'))
+            else:
+                self.client_socket.send('/room/4'.encode('utf-8'))
+                self.select_room = 4
+                self.window.destroy()
 
         self.refresh = Button(self.window, text='refresh', width=10, height=2, bg='white', command=refresh_click)
         self.refresh.place(x=785, y=360)
