@@ -3,6 +3,7 @@ from tkinter import Tk
 
 import intro
 import room
+import ingame
 
 if __name__ == "__main__":
     client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -17,4 +18,8 @@ if __name__ == "__main__":
     window = Tk()
     r = room.Room(window, client_socket)
     r.ret_select_room()
+    window.mainloop()
+
+    window = Tk()
+    ing = ingame.Ingame(window, client_socket)
     window.mainloop()
