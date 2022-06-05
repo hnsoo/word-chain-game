@@ -36,6 +36,18 @@ class Ingame:
                 message = '[알림] ' + user + " 님이 입장하였습니다."
                 self.chat_transcript_area.insert('end', message + '\n')
                 self.chat_transcript_area.yview(END)
+            elif "start" in message: # Message at game Started
+                # start:{start_word}:{who_is_first_player}
+                message = "게임이 시작했습니다. 시작단어는 {}입니다. {}님부터 시작하겠습니다.".format(message.split(":")[1], message.split(":")[2])
+                self.chat_transcript_area.insert('end', message + '\n')
+                self.chat_transcript_area.yview(END)
+
+            elif "attempt" in message: #
+                # attempt:{who : String} : {word : string} : {is_Correct? : bool}
+                message = "{}님이 {}를 입력 했습니다. {}!".format(message.split(":")[1], message.split(":")[2], "정답" if message.split(":")[3] is True else "실패")
+                self.chat_transcript_area.insert('end', message + '\n')
+                self.chat_transcript_area.yview(END)
+
             else:
                 self.chat_transcript_area.insert('end', message + '\n')
                 self.chat_transcript_area.yview(END)
