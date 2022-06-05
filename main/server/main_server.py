@@ -39,6 +39,7 @@ class Main:
     def receive_data(self, so, ip, port):
         while True:
             input_data = so.recv(256).decode('utf-8')
+            print('serv')
             # 닉네임 중복 확인
             if input_data[:10] == '/register/':
                 user_name = input_data[10:]
@@ -56,8 +57,7 @@ class Main:
                 room_num = int(input_data[6])
                 user_name = input_data[7:]
                 self.current_room[room_num-1].append((so, user_name))
-                t = threading.Thread(target=self.enter_room, args=(room_num, so, user_name))
-                t.start()
+                self.enter_room(room_num, so, user_name)
 
     def receive_new_user(self):
         while True:
@@ -70,13 +70,17 @@ class Main:
         users = self.current_room[room_num-1]
         # 유저 이름 리스트 추출
         users_name = [oj[1] for oj in users]
-        so.send(pickle.dumps(users_name))
+        # so.send(pickle.dumps(users_name))
         for user in users:
-            user[0].send('join:user_name'.encode('utf-8'))
+            user[0].send('join:{}'.format(user[1]).encode('utf-8'))
         while True:
             input_data = so.recv(256).decode('utf-8')
+            print('success recv')
+            if not input_data:
+                break
+            print(input_data)
             for user in users:
-                user[0].send(input_data)
+                user[0].sendall(input_data.encode('utf-8'))
 
 
 if __name__ == '__main__':

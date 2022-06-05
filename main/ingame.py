@@ -4,7 +4,8 @@ from tkinter import *
 
 
 class Ingame:
-    def __init__(self, master, client_socket, room_num):
+    def __init__(self, master, client_socket, room_num, name):
+        self.name = name
         self.room_num = room_num
         self.client_socket = client_socket
         self.users_name = []
@@ -29,7 +30,7 @@ class Ingame:
         while True:
             buffer = so.recv(256)
             message = buffer.decode('utf-8')
-
+            print(message)
             if "join" in message:
                 user = message.split(":")[1]
                 message = '[알림] ' + user + " 님이 입장하였습니다."
@@ -69,8 +70,14 @@ class Ingame:
         scrollbar.pack(side='right', fill='y')
         frame.pack(side='bottom')
 
-    def on_enter_key_pressed(self):
-        pass
+    def on_enter_key_pressed(self, event):
+        senders = self.name + ":"
+        data = self.enter_text_widget.get(1.0, 'end').strip()
+        msg = (senders + data).encode('utf-8')
+        self.client_socket.send(msg)
+        print('success client to server')
+        self.enter_text_widget.delete(1.0, 'end')
+        return 'break'
 
     def user_box(self):
         frame = Frame(self.window)
@@ -78,7 +85,6 @@ class Ingame:
         for user in self.users_name:
             self.users.append(Label(frame, width=10, height=2, bg='#b6f2da', relief='groove', font=font, text='{}'.format(user)))
             self.users[-1].pack(side='left')
-
         frame.place(x=310, y=367)
 
 

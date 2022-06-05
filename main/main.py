@@ -15,10 +15,11 @@ if __name__ == "__main__":
     window.mainloop()
 
     window = Tk()
-    r = room.Room(window, client_socket, i.retName())
+    name = i.retName()
+    r = room.Room(window, client_socket, name)
     room_num = r.ret_select_room()
     window.mainloop()
 
     window = Tk()
-    ing = ingame.Ingame(window, client_socket, room_num)
+    ing = ingame.Ingame(window, client_socket, room_num, name)
     window.mainloop()
