@@ -56,7 +56,7 @@ class Main:
                 room_num = int(input_data[6])
                 user_name = input_data[7:]
                 self.current_room[room_num-1].append((so, user_name))
-                t = threading.Thread(target=self.enter_room, args=(room_num, so))
+                t = threading.Thread(target=self.enter_room, args=(room_num, so, user_name))
                 t.start()
 
     def receive_new_user(self):
@@ -66,11 +66,17 @@ class Main:
             t = threading.Thread(target=self.receive_data, args=(so, ip, port,))
             t.start()
 
-    def enter_room(self, room_num, so):
-        users = self.current_room[room_num]
+    def enter_room(self, room_num, so, user_name):
+        users = self.current_room[room_num-1]
         # 유저 이름 리스트 추출
         users_name = [oj[1] for oj in users]
         so.send(pickle.dumps(users_name))
+        for user in users:
+            user[0].send('join:user_name'.encode('utf-8'))
+        while True:
+            input_data = so.recv(256).decode('utf-8')
+            for user in users:
+                user[0].send(input_data)
 
 
 if __name__ == '__main__':
