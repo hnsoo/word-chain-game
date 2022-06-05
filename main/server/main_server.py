@@ -2,25 +2,17 @@ import socket
 import threading
 import pickle
 
-import room_server
-
 
 class Main:
     # clients_list = []
     user_name_list = []
-    current_room = [[], [], [], []]     # 예시 [[(so, khs)], [], []]
+    current_room = [[], [], [], []]  # 예시 [[(so, khs)], [], []]
 
     def __init__(self):
         # self.create_rooms()
         self.main_server_socket = None
         # bind and listen
         self.create_listening_server()
-
-    # def create_rooms(self):
-    #     for i in range(4):
-    #         title = "Room {}".format(i)
-    #         t = room_server.Room_thread(title)
-    #         t.start()
 
     def create_listening_server(self):
         # 소켓 생성
@@ -56,7 +48,7 @@ class Main:
             elif input_data[:6] == '/room/':
                 room_num = int(input_data[6])
                 user_name = input_data[7:]
-                self.current_room[room_num-1].append((so, user_name))
+                self.current_room[room_num - 1].append((so, user_name))
                 self.enter_room(room_num, so, user_name)
 
     def receive_new_user(self):
@@ -67,12 +59,14 @@ class Main:
             t.start()
 
     def enter_room(self, room_num, so, user_name):
-        users = self.current_room[room_num-1]
+        users = self.current_room[room_num - 1]
         # 유저 이름 리스트 추출
-        users_name = [oj[1] for oj in users]
+        # users_name = [oj[1] for oj in users]
         # so.send(pickle.dumps(users_name))
+        print(users)
         for user in users:
-            user[0].send('join:{}'.format(user[1]).encode('utf-8'))
+            if user[1] != user_name:
+                user[0].send('join:{}'.format(user_name).encode('utf-8'))
         while True:
             input_data = so.recv(256).decode('utf-8')
             print('success recv')
