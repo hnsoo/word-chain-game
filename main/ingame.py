@@ -44,7 +44,7 @@ class Ingame:
 
             elif "attempt" in message: #
                 # attempt:{who : String} : {word : string} : {is_Correct? : bool}
-                message = "{}님이 {}를 입력 했습니다. {}!".format(message.split(":")[1], message.split(":")[2], "정답" if message.split(":")[3] is True else "실패")
+                message = "{}님이 {}를 입력 했습니다. {}!".format(message.split(":")[1], message.split(":")[2], "정답" if message.split(":")[3] == 'True' else "실패")
                 self.chat_transcript_area.insert('end', message + '\n')
                 self.chat_transcript_area.yview(END)
 

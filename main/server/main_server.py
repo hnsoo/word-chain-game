@@ -11,6 +11,7 @@ class Main:
     state_room: list[True, False] = []  # 게임이 시작중인지 아닌지 여부
     now_player: list["player name"] = []  # 방마다 단어를 입력해야되는 플레이어 닉네임
     last_word_room: list["last word"] = []  # 방마다 마지막 단어
+    score = {}
 
     def __init__(self):
         # self.create_rooms()
@@ -39,6 +40,7 @@ class Main:
         self.receive_new_user()
 
     def receive_data(self, so, ip, port):
+        print('start receive')
         while True:
             input_data = so.recv(256).decode('utf-8')
             print('serv')
@@ -90,12 +92,16 @@ class Main:
                 from main.server.krdict_api import get_start_word
                 self.last_word_room[room_num - 1] = get_start_word()
                 self.now_player[room_num - 1] = self.current_room[room_num - 1][0][1]
+                self.score = {}
+                for person in self.current_room[room_num-1]:
+                    self.score[person[1]] = 1000
                 # start:{start_word}:{who_is_first_player}
                 self.send_all(room_number=room_num, msg='start:{}:{}'.format(self.last_word_room[room_num - 1],
                                                                              self.now_player[room_num - 1]))
 
         while True:
             if self.state_room[room_num - 1] is True and self.now_player[room_num - 1] == user_name:
+                print('hi')
                 input_data = so.recv(256).decode('utf-8')
                 print('success recv Word')
                 if not input_data:
@@ -110,11 +116,16 @@ class Main:
                 if first_word != last_word_tmp:
                     self.send_all(room_number=room_num, msg='attempt:{}:{}:{}'.format(user_name, input_word,
                                                                                       False))
+                    self.score[user_name] = self.score[user_name] - 50
+                    print(self.score)
                     #todo : 틀렸을때 점수 계산하는 로직
                 else:
                     self.send_all(room_number=room_num, msg='attempt:{}:{}:{}'.format(user_name, input_word,
                                                                                       True))
                     self.last_word_room[room_num - 1] = input_word
+                    self.score[user_name] = self.score[user_name] + 100
+                    print(self.score)
+                    self.send_all(room_number=1, msg="맞혔습니다!")
                     #todo: 순서 바꾸는 로직
                     #맞췄을때 점수 계산하는 로직
             else:
