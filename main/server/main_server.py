@@ -12,6 +12,7 @@ class Main:
     now_player: list["player name"] = []  # 방마다 단어를 입력해야되는 플레이어 닉네임
     last_word_room: list["last word"] = []  # 방마다 마지막 단어
     score = {}
+    order = []
 
     def __init__(self):
         # self.create_rooms()
@@ -22,6 +23,8 @@ class Main:
         [self.last_word_room.append("") for room in self.current_room]
         # init now_player (룸 갯수만큼 ""을 집어넣어줌)
         [self.now_player.append("") for room in self.current_room]
+        # 게임 순서
+        self.order = [0, 0, 0, 0]
         # bind and listen
         self.create_listening_server()
 
@@ -91,7 +94,7 @@ class Main:
                 self.state_room[room_num - 1] = True
                 from main.server.krdict_api import get_start_word
                 self.last_word_room[room_num - 1] = get_start_word()
-                self.now_player[room_num - 1] = self.current_room[room_num - 1][0][1]
+                self.now_player[room_num - 1] = self.current_room[room_num - 1][self.order[room_num - 1]][1]
                 self.score = {}
                 for person in self.current_room[room_num-1]:
                     self.score[person[1]] = 1000
@@ -118,16 +121,17 @@ class Main:
                                                                                       False))
                     self.score[user_name] = self.score[user_name] - 50
                     print(self.score)
-                    #todo : 틀렸을때 점수 계산하는 로직
                 else:
                     self.send_all(room_number=room_num, msg='attempt:{}:{}:{}'.format(user_name, input_word,
                                                                                       True))
                     self.last_word_room[room_num - 1] = input_word
                     self.score[user_name] = self.score[user_name] + 100
                     print(self.score)
-                    self.send_all(room_number=1, msg="맞혔습니다!")
-                    #todo: 순서 바꾸는 로직
-                    #맞췄을때 점수 계산하는 로직
+                    if self.order[room_num - 1] < 1:
+                        self.order[room_num - 1] += 1
+                    else:
+                        self.order[room_num - 1] = 0
+                    self.now_player[room_num - 1] = self.current_room[room_num - 1][self.order[room_num - 1]][1]
             else:
                 # just chat
                 input_data = so.recv(256).decode('utf-8')
