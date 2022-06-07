@@ -53,7 +53,6 @@ class Intro:
                     self.window.destroy()
                 else:
                     messagebox.showwarning("닉네임 중복 오류", "서버 상에 해당 닉네임이 존재합니다. ")
-                    self.client_socket.close()
         else:
             messagebox.showwarning("닉네임 양식 오류", "영문, 숫자 최대 10자리로 닉네임을 생성해주세요.")
 

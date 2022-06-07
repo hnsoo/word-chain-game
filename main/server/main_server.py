@@ -55,6 +55,8 @@ class Main:
                     self.user_name_list.append(user_name)
                     so.send('yes'.encode('utf-8'))
                     print('[IP: {}, PORT: {}] 닉네임 {} 등록 성공'.format(ip, port, user_name))
+                else:
+                    so.send('no'.encode('utf-8'))
                 print('user_name_list: {}'.format(self.user_name_list))
             # 방 인원 상황 새로고침
             elif input_data.startswith('/refresh'):
