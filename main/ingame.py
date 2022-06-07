@@ -129,16 +129,16 @@ class Ingame:
 
     def display_user_box(self):
         frame = Frame()
+        frame.pack(side='top', pady='96')
         font = tkinter.font.Font(size=13)
-        print(self.users_name)
+        print(self.users_name, type(self.users_name))
         for user in self.users_name:
             print(user)
             self.user_box.append(Label(frame, width=10, height=2, bg='#b6f2da', relief='groove', font=font,
-                                       text='{}'.format(user)))
+                                       text=user))
             self.user_box[-1].pack(side='left')
-        frame.place(x=310, y=367)
 
 
-if __name__ == "__main__":
-    Ingame(Tk(), None, 1, 'a')
-    mainloop()
+# if __name__ == "__main__":
+#     Ingame(Tk(), None, 1, 'a')
+#     mainloop()
