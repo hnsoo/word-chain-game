@@ -1,3 +1,4 @@
+import pickle
 import threading
 import tkinter.font
 from tkinter import *
@@ -13,13 +14,12 @@ class Ingame:
         self.bg = None
         self.bg_label = None
         self.frame = None
-        self.users = []
+        self.user_box = []
         self.exit = None
         self.enter_text_widget = None
         self.chat_transcript_area = None
         self.word_label = None
         self.init_gui()
-        self.user_box()
 
         self.listen_for_incoming_messages_in_a_thread()
 
@@ -42,6 +42,10 @@ class Ingame:
                 # start:{start_word}:{who_is_first_player}
                 start_word = message.split(":")[1]
                 who_is_first_player = message.split(":")[2]
+                self.users_name = (message.split(":")[3]).split(",")
+                print(self.users_name)
+                # 유저 목록 UI 출력
+                self.display_user_box()
                 self.word_label.configure(text=start_word)
                 message = "게임이 시작했습니다. 시작단어는 {}입니다. {}님부터 시작하겠습니다.".format(start_word, who_is_first_player)
                 self.chat_transcript_area.insert('end', message + '\n')
@@ -123,12 +127,15 @@ class Ingame:
         self.enter_text_widget.delete(1.0, 'end')
         return 'break'
 
-    def user_box(self):
-        frame = Frame(self.window)
+    def display_user_box(self):
+        frame = Frame()
         font = tkinter.font.Font(size=13)
+        print(self.users_name)
         for user in self.users_name:
-            self.users.append(Label(frame, width=10, height=2, bg='#b6f2da', relief='groove', font=font, text='{}'.format(user)))
-            self.users[-1].pack(side='left')
+            print(user)
+            self.user_box.append(Label(frame, width=10, height=2, bg='#b6f2da', relief='groove', font=font,
+                                       text='{}'.format(user)))
+            self.user_box[-1].pack(side='left')
         frame.place(x=310, y=367)
 
 

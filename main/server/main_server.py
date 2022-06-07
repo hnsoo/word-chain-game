@@ -94,9 +94,11 @@ class Main:
                 self.score = {}
                 for person in self.current_room[room_num-1]:
                     self.score[person[1]] = 1000
+                users_name_word = ",".join(self.score.keys())
+                # print("유저 리스트 문자열", users_name_word)
                 # start:{start_word}:{who_is_first_player}
-                self.send_all(room_number=room_num, msg='start:{}:{}'.format(self.last_word_room[room_num - 1],
-                                                                             self.now_player[room_num - 1]))
+                self.send_all(room_number=room_num, msg='start:{}:{}:{}:'.format(
+                    self.last_word_room[room_num - 1], self.now_player[room_num - 1], users_name_word))
 
         while True:
             print(self.state_room[room_num - 1], self.now_player[room_num - 1], user_name)
