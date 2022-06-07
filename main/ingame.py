@@ -19,6 +19,7 @@ class Ingame:
         self.enter_text_widget = None
         self.chat_transcript_area = None
         self.word_label = None
+        self.time_box = None
         self.init_gui()
 
         self.listen_for_incoming_messages_in_a_thread()
@@ -113,9 +114,13 @@ class Ingame:
         # 단어
         word_frame = Frame()
         word_frame.pack(side='top', pady=110)
-        self.word_label = Label(word_frame, relief='flat', font=tkinter.font.Font(size=25, family='맑은 고딕'), text='게임 시작 전',
-                                bg='white')
+        self.word_label = Label(word_frame, relief='flat', font=tkinter.font.Font(size=25, family='맑은 고딕'),
+                                text='게임 시작 전', bg='white')
         self.word_label.pack()
+        # 시간
+        self.time_box = Label(self.window, relief='flat', text='10s', font=tkinter.font.Font(size=14, weight='bold'),
+                              bg='white')
+        self.time_box.place(x=130, y=340)
         # 나가기
         self.exit = Button(self.window, text='나가기', anchor='center', width=20, height=3, bg='grey', fg='white')
         self.exit.place(x=0, y=0)
