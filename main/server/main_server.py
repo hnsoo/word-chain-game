@@ -1,8 +1,9 @@
 import socket
 import threading
 import pickle
+import time
 from typing import List, Any
-
+from main.server.krdict_api import kr_dict_api
 
 class Main:
     # clients_list = []
@@ -78,22 +79,17 @@ class Main:
             t.start()
 
     def enter_room(self, room_num, so, user_name):
+        kr_dict = kr_dict_api()
         users = self.current_room[room_num - 1]
-        # 유저 이름 리스트 추출
-        # users_name = [oj[1] for oj in users]
-        # so.send(pickle.dumps(users_name))
         print(users)
-        # for user in users:
-        #     if user[1] != user_name:
-        #         user[0].send('join:{}'.format(user_name).encode('utf-8'))
         self.send_all(room_number=room_num, msg='join:{}'.format(user_name))
 
         if self.state_room[room_num - 1] is False:
             if len(self.current_room[room_num - 1]) >= 2:
+                time.sleep(0.5) # 방에서 제일 마지막으로 들어온 인원도 시작 메세지를 받을 수 있도록 sleep을 씀.
                 print("게임이 시작됩니다.")
                 self.state_room[room_num - 1] = True
-                from main.server.krdict_api import get_start_word
-                self.last_word_room[room_num - 1] = get_start_word()
+                self.last_word_room[room_num - 1] = kr_dict_api.get_start_word()
                 self.now_player[room_num - 1] = self.current_room[room_num - 1][self.order[room_num - 1]][1]
                 self.score = {}
                 for person in self.current_room[room_num-1]:
@@ -103,8 +99,8 @@ class Main:
                                                                              self.now_player[room_num - 1]))
 
         while True:
+            print(self.state_room[room_num - 1], self.now_player[room_num - 1], user_name)
             if self.state_room[room_num - 1] is True and self.now_player[room_num - 1] == user_name:
-                print('hi')
                 input_data = so.recv(256).decode('utf-8')
                 print('success recv Word')
                 if not input_data:
@@ -116,7 +112,8 @@ class Main:
                 last_word_tmp = last_word_tmp[len(last_word_tmp)-1:len(last_word_tmp)]
                 first_word = input_word[0]
                 print("퍼스트 {}, 라스트 {}".format(first_word, last_word_tmp))
-                if first_word != last_word_tmp:
+
+                if first_word != last_word_tmp or kr_dict.find_word(input_word) == '':
                     self.send_all(room_number=room_num, msg='attempt:{}:{}:{}'.format(user_name, input_word,
                                                                                       False))
                     self.score[user_name] = self.score[user_name] - 50
@@ -132,6 +129,7 @@ class Main:
                     else:
                         self.order[room_num - 1] = 0
                     self.now_player[room_num - 1] = self.current_room[room_num - 1][self.order[room_num - 1]][1]
+                    self.send_all(room_number=room_num, msg="change_turn:{}:{}".format(self.now_player[room_num - 1], input_word))
             else:
                 # just chat
                 input_data = so.recv(256).decode('utf-8')
@@ -150,3 +148,5 @@ class Main:
 
 if __name__ == '__main__':
     main = Main()
+
+

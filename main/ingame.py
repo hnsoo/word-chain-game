@@ -17,8 +17,10 @@ class Ingame:
         self.exit = None
         self.enter_text_widget = None
         self.chat_transcript_area = None
+        self.word_label = None
         self.init_gui()
         self.user_box()
+
         self.listen_for_incoming_messages_in_a_thread()
 
     def listen_for_incoming_messages_in_a_thread(self):
@@ -38,15 +40,39 @@ class Ingame:
                 self.chat_transcript_area.yview(END)
             elif "start" in message: # Message at game Started
                 # start:{start_word}:{who_is_first_player}
-                message = "게임이 시작했습니다. 시작단어는 {}입니다. {}님부터 시작하겠습니다.".format(message.split(":")[1], message.split(":")[2])
+                start_word = message.split(":")[1]
+                who_is_first_player = message.split(":")[2]
+                self.word_label.configure(text=start_word)
+                message = "게임이 시작했습니다. 시작단어는 {}입니다. {}님부터 시작하겠습니다.".format(start_word, who_is_first_player)
                 self.chat_transcript_area.insert('end', message + '\n')
                 self.chat_transcript_area.yview(END)
+
+                if who_is_first_player == self.name:
+                    senders = self.name + ":"
+                    data = "제 순서입니다."
+                    msg = (senders + data).encode('utf-8')
+                    self.client_socket.send(msg)
 
             elif "attempt" in message: #
                 # attempt:{who : String} : {word : string} : {is_Correct? : bool}
                 message = "{}님이 {}를 입력 했습니다. {}!".format(message.split(":")[1], message.split(":")[2], "정답" if message.split(":")[3] == 'True' else "실패")
                 self.chat_transcript_area.insert('end', message + '\n')
                 self.chat_transcript_area.yview(END)
+
+            elif "change_turn" in message:
+                # change_turn:{player}:{last_word}
+                now_turn = message.split(":")[1]
+                last_word = message.split(":")[2]
+                self.word_label.configure(text=last_word)
+                message = "{}님 차례로 바뀌었습니다! - '{}' 이어해주세요~".format(now_turn, last_word)
+                self.chat_transcript_area.insert('end', message + '\n')
+                self.chat_transcript_area.yview(END)
+
+                if now_turn == self.name:
+                    senders = self.name + ":"
+                    data = '제 순서입니다.'
+                    msg = (senders + data).encode('utf-8')
+                    self.client_socket.send(msg)
 
             else:
                 self.chat_transcript_area.insert('end', message + '\n')
@@ -63,6 +89,12 @@ class Ingame:
         # 채팅창
         self.display_chat_entry_box()
         self.display_chat_box()
+        # 단어
+        word_frame = Frame()
+        word_frame.pack(side='top', pady=110)
+        self.word_label = Label(word_frame, relief='flat', font=tkinter.font.Font(size=25, family='맑은 고딕'), text='게임 시작 전',
+                                bg='white')
+        self.word_label.pack()
         # 나가기
         self.exit = Button(self.window, text='나가기', anchor='center', width=20, height=3, bg='grey', fg='white')
         self.exit.place(x=0, y=0)
@@ -100,6 +132,6 @@ class Ingame:
         frame.place(x=310, y=367)
 
 
-# if __name__ == "__main__":
-#     Ingame(Tk(), None, 1)
-#     mainloop()
+if __name__ == "__main__":
+    Ingame(Tk(), None, 1, 'a')
+    mainloop()
