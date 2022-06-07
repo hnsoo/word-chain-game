@@ -48,6 +48,8 @@ class Ingame:
                 self.display_user_box()
                 self.word_label.configure(text=start_word)
                 message = "게임이 시작했습니다. 시작단어는 {}입니다. {}님부터 시작하겠습니다.".format(start_word, who_is_first_player)
+                # 유저 박스 색상 변경
+                self.change_user_box_color(who_is_first_player, "answer")
                 self.chat_transcript_area.insert('end', message + '\n')
                 self.chat_transcript_area.yview(END)
 
@@ -59,8 +61,13 @@ class Ingame:
 
             elif "attempt" in message: #
                 # attempt:{who : String} : {word : string} : {is_Correct? : bool}
-                message = "{}님이 {}를 입력 했습니다. {}!".format(message.split(":")[1], message.split(":")[2], "정답" if message.split(":")[3] == 'True' else "실패")
-                self.chat_transcript_area.insert('end', message + '\n')
+                attempt_user = message.split(":")[1]
+                attempt_word = message.split(":")[2]
+                result = message.split(":")[3]
+                result_message = "{}님이 {}를 입력 했습니다. {}!".format(attempt_user, attempt_word, "정답" if result == 'True' else "실패")
+                if result == 'True':
+                    self.change_user_box_color(attempt_user, "default")
+                self.chat_transcript_area.insert('end', result_message + '\n')
                 self.chat_transcript_area.yview(END)
 
             elif "change_turn" in message:
@@ -69,6 +76,8 @@ class Ingame:
                 last_word = message.split(":")[2]
                 self.word_label.configure(text=last_word)
                 message = "{}님 차례로 바뀌었습니다! - '{}' 이어해주세요~".format(now_turn, last_word)
+                # 유저 박스 색상 변경
+                self.change_user_box_color(now_turn, "answer")
                 self.chat_transcript_area.insert('end', message + '\n')
                 self.chat_transcript_area.yview(END)
 
@@ -81,6 +90,14 @@ class Ingame:
             else:
                 self.chat_transcript_area.insert('end', message + '\n')
                 self.chat_transcript_area.yview(END)
+
+    def change_user_box_color(self, name, user_type):
+        for box in self.user_box:
+            if box.cget("text") == name:
+                if user_type == "answer":
+                    box.configure(bg='#1fb177')
+                else:
+                    box.configure(bg='#b6f2da')
 
     def init_gui(self):
         self.window.title("word chain game")
