@@ -2,6 +2,7 @@ import pickle
 import threading
 import tkinter.font
 from tkinter import *
+from datetime import datetime, timedelta
 
 
 class Ingame:
@@ -22,6 +23,8 @@ class Ingame:
         self.time_box = None
         self.init_gui()
 
+        self.timer = None
+
         self.listen_for_incoming_messages_in_a_thread()
 
     def listen_for_incoming_messages_in_a_thread(self):
@@ -39,11 +42,17 @@ class Ingame:
                 message = '[알림] ' + user + " 님이 입장하였습니다."
                 self.chat_transcript_area.insert('end', message + '\n')
                 self.chat_transcript_area.yview(END)
-            elif "start" in message: # Message at game Started
+            elif "start" in message:  # Message at game Started
+
                 # start:{start_word}:{who_is_first_player}
                 start_word = message.split(":")[1]
                 who_is_first_player = message.split(":")[2]
                 self.users_name = (message.split(":")[3]).split(",")
+                str_timer = message.split(":")[4]
+                self.timer = datetime.strptime(str_timer, '%d/%m/%Y/%H/%M/%S')
+
+                self.set_interval(self.count_timer(), 1)
+
                 print(self.users_name)
                 # 유저 목록 UI 출력
                 self.display_user_box()
@@ -60,12 +69,13 @@ class Ingame:
                     msg = (senders + data).encode('utf-8')
                     self.client_socket.send(msg)
 
-            elif "attempt" in message: #
+            elif "attempt" in message:  #
                 # attempt:{who : String} : {word : string} : {is_Correct? : bool}
                 attempt_user = message.split(":")[1]
                 attempt_word = message.split(":")[2]
                 result = message.split(":")[3]
-                result_message = "{}님이 {}를 입력 했습니다. {}!".format(attempt_user, attempt_word, "정답" if result == 'True' else "실패")
+                result_message = "{}님이 {}를 입력 했습니다. {}!".format(attempt_user, attempt_word,
+                                                                "정답" if result == 'True' else "실패")
                 if result == 'True':
                     self.change_user_box_color(attempt_user, "default")
                 self.chat_transcript_area.insert('end', result_message + '\n')
@@ -87,6 +97,10 @@ class Ingame:
                     data = '제 순서입니다.'
                     msg = (senders + data).encode('utf-8')
                     self.client_socket.send(msg)
+
+            elif "finish" in message:
+                result = message.split(":")[1]
+                print(result)
 
             else:
                 self.chat_transcript_area.insert('end', message + '\n')
@@ -118,7 +132,7 @@ class Ingame:
                                 text='게임 시작 전', bg='white')
         self.word_label.pack()
         # 시간
-        self.display_time_box()
+        self.display_time_box(seconds=0)
         # 나가기
         self.exit = Button(self.window, text='나가기', anchor='center', width=20, height=3, bg='grey', fg='white')
         self.exit.place(x=0, y=0)
@@ -158,11 +172,35 @@ class Ingame:
                                        text=user))
             self.user_box[-1].pack(side='left')
 
-    def display_time_box(self, time='10s'):
-        self.time_box = Label(self.window, relief='flat', text=time, font=tkinter.font.Font(size=14, weight='bold'),
-                              bg='white')
-        self.time_box.place(x=130, y=340)
+    def display_time_box(self, seconds):
+        if seconds != 0:
+            self.time_box = Label(self.window, relief='flat', text="{}s".format(seconds),
+                                  font=tkinter.font.Font(size=14, weight='bold'),
+                                  bg='white')
+            self.time_box.place(x=130, y=340)
 
+    def change_time_box(self, seconds):
+        if self.time_box is None:
+            self.display_time_box(seconds)
+        else:
+            self.time_box.configure(text="{}s".format(seconds))
+
+    def count_timer(self):
+        now = datetime.now()
+        if self.timer < now:
+            self.change_time_box(0)
+        else:
+            diff = self.timer - now
+            self.change_time_box(diff.seconds)
+
+    def set_interval(self, func, sec):
+        def func_wrapper():
+            self.set_interval(self.count_timer(), sec)
+            self.count_timer()
+
+        t = threading.Timer(sec, func_wrapper)
+        t.start()
+        return t
 
 # if __name__ == "__main__":
 #     Ingame(Tk(), None, 1, 'a')

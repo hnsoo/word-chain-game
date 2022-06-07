@@ -1,9 +1,12 @@
 import socket
+import string
 import threading
 import pickle
 import time
 from typing import List, Any
 from main.server.krdict_api import kr_dict_api
+from datetime import datetime, timedelta
+
 
 class Main:
     # clients_list = []
@@ -11,8 +14,9 @@ class Main:
     current_room: list[list[socket.socket, "player name"]] = [[], [], [], []]  # 예시 [[(so, khs)], [], []]
     state_room: list[True, False] = []  # 게임이 시작중인지 아닌지 여부
     now_player: list["player name"] = []  # 방마다 단어를 입력해야되는 플레이어 닉네임
+    remain_time_room = []
     last_word_room: list["last word"] = []  # 방마다 마지막 단어
-    score = {}
+    score = []
     order = []
 
     def __init__(self):
@@ -24,10 +28,15 @@ class Main:
         [self.last_word_room.append("") for room in self.current_room]
         # init now_player (룸 갯수만큼 ""을 집어넣어줌)
         [self.now_player.append("") for room in self.current_room]
+
+        [self.score.append([]) for room in self.current_room]
+
+        [self.remain_time_room.append(None) for room in self.current_room]
         # 게임 순서
         self.order = [0, 0, 0, 0]
         # bind and listen
         self.create_listening_server()
+
 
     def create_listening_server(self):
         # 소켓 생성
@@ -40,8 +49,10 @@ class Main:
         self.main_server_socket.bind((HOST, PORT))
         print("Listening for incoming messages..")
         # 최대 20명까지 listen
+        self.set_interval(self.avangers_endgame, 0.2)
         self.main_server_socket.listen(20)
         self.receive_new_user()
+
 
     def receive_data(self, so, ip, port):
         print('start receive')
@@ -86,63 +97,92 @@ class Main:
         print(users)
         self.send_all(room_number=room_num, msg='join:{}'.format(user_name))
 
-        if self.state_room[room_num - 1] is False:
+        if self.state_room[room_num - 1] is False and len(self.current_room[room_num - 1]) >= 2:
             if len(self.current_room[room_num - 1]) >= 2:
-                time.sleep(0.5) # 방에서 제일 마지막으로 들어온 인원도 시작 메세지를 받을 수 있도록 sleep을 씀.
+                time.sleep(0.5)  # 방에서 제일 마지막으로 들어온 인원도 시작 메세지를 받을 수 있도록 sleep을 씀.
                 print("게임이 시작됩니다.")
                 self.state_room[room_num - 1] = True
                 self.last_word_room[room_num - 1] = kr_dict_api.get_start_word()
                 self.now_player[room_num - 1] = self.current_room[room_num - 1][self.order[room_num - 1]][1]
-                self.score = {}
-                for person in self.current_room[room_num-1]:
-                    self.score[person[1]] = 1000
-                users_name_word = ",".join(self.score.keys())
+                self.score[room_num - 1] = []
+                self.score[room_num - 1] = [1000 for i in self.current_room[room_num - 1] ]
+                users_name_word = ",".join([name[1] for name in self.current_room[room_num - 1]])
                 # print("유저 리스트 문자열", users_name_word)
                 # start:{start_word}:{who_is_first_player}
-                self.send_all(room_number=room_num, msg='start:{}:{}:{}:'.format(
-                    self.last_word_room[room_num - 1], self.now_player[room_num - 1], users_name_word))
+
+                timer = datetime.now() + timedelta(seconds=120)
+                str_timer = timer.strftime("%d/%m/%Y/%H/%M/%S")
+                self.remain_time_room[room_num - 1] = timer
+                self.send_all(room_number=room_num, msg='start:{}:{}:{}:{}:'.format(
+                    self.last_word_room[room_num - 1], self.now_player[room_num - 1], users_name_word, str_timer))
 
         while True:
+            uid = self.find_by_username(room_num, user_name)
             print(self.state_room[room_num - 1], self.now_player[room_num - 1], user_name)
             if self.state_room[room_num - 1] is True and self.now_player[room_num - 1] == user_name:
                 input_data = so.recv(256).decode('utf-8')
                 print('success recv Word')
                 if not input_data:
-                    break
+                    continue
                 print(input_data)
                 input_word = input_data.split(":")[1]
-                print("last word room ", self.last_word_room[room_num -1])
+                print("last word room ", self.last_word_room[room_num - 1])
                 last_word_tmp = self.last_word_room[room_num - 1]
-                last_word_tmp = last_word_tmp[len(last_word_tmp)-1:len(last_word_tmp)]
+                last_word_tmp = last_word_tmp[len(last_word_tmp) - 1:len(last_word_tmp)]
                 first_word = input_word[0]
                 print("퍼스트 {}, 라스트 {}".format(first_word, last_word_tmp))
 
                 if first_word != last_word_tmp or kr_dict.find_word(input_word) == '':
                     self.send_all(room_number=room_num, msg='attempt:{}:{}:{}'.format(user_name, input_word,
                                                                                       False))
-                    self.score[user_name] = self.score[user_name] - 50
+                    self.score[room_num - 1][uid] -= 50
                     print(self.score)
                 else:
                     self.send_all(room_number=room_num, msg='attempt:{}:{}:{}'.format(user_name, input_word,
                                                                                       True))
                     self.last_word_room[room_num - 1] = input_word
-                    self.score[user_name] = self.score[user_name] + 100
+                    self.score[room_num - 1][uid] += 100
                     print(self.score)
                     if self.order[room_num - 1] < 1:
                         self.order[room_num - 1] += 1
                     else:
                         self.order[room_num - 1] = 0
                     self.now_player[room_num - 1] = self.current_room[room_num - 1][self.order[room_num - 1]][1]
-                    self.send_all(room_number=room_num, msg="change_turn:{}:{}".format(self.now_player[room_num - 1], input_word))
+                    self.send_all(room_number=room_num,
+                                  msg="change_turn:{}:{}".format(self.now_player[room_num - 1], input_word
+                                                                    ))
             else:
                 # just chat
                 input_data = so.recv(256).decode('utf-8')
                 print('success recv Chat')
                 if not input_data:
-                    break
+                    continue
                 print(input_data)
                 for user in users:
                     user[0].sendall(input_data.encode('utf-8'))
+
+    def avangers_endgame(self):
+        for room_idx, finish_time in enumerate(self.remain_time_room):
+            now = datetime.now()
+            if finish_time is not None:
+                if finish_time < now:
+                    # room = [[["qwe", "ss"], ["qwdqwd", "ww"]]]
+                    # score = [[30, 50]]
+                    # data = "finish:{}".format(",".join(["{}님 {}점".format(room[0][idx][1], player) for idx, player in enumerate(score[0])]))
+                    # print(data)
+
+                    msg = ",".join(
+                        ["{}님 {}점".format(self.current_room[room_idx][uid][1], player) for uid, player in
+                         enumerate(self.score[room_idx])])
+                    data = "finish:{}".format(msg)
+
+
+                    print("msg .... ", msg)
+
+                    print(room_idx, "   ", finish_time, "     ", finish_time < now,  "     ", data)
+
+                    self.send_all(room_idx + 1, data)
+                    self.remain_time_room[room_idx] = None
 
     def send_all(self, room_number=0, msg=""):
         msg_enc = msg.encode('utf-8')
@@ -150,7 +190,20 @@ class Main:
             user[0].send(msg_enc)
 
 
+    def set_interval(self, func, sec):
+        def func_wrapper():
+            self.set_interval(self.avangers_endgame, sec)
+            self.avangers_endgame()
+
+        t = threading.Timer(sec, func_wrapper)
+        t.start()
+        return t
+
+    def find_by_username(self, room_num, name):
+        for idx, user in enumerate(self.current_room[room_num - 1]):
+            if user[1] == name:
+                return idx
+        return -1
+
 if __name__ == '__main__':
     main = Main()
-
-
