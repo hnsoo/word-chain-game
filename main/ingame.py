@@ -118,9 +118,7 @@ class Ingame:
                                 text='게임 시작 전', bg='white')
         self.word_label.pack()
         # 시간
-        self.time_box = Label(self.window, relief='flat', text='10s', font=tkinter.font.Font(size=14, weight='bold'),
-                              bg='white')
-        self.time_box.place(x=130, y=340)
+        self.display_time_box()
         # 나가기
         self.exit = Button(self.window, text='나가기', anchor='center', width=20, height=3, bg='grey', fg='white')
         self.exit.place(x=0, y=0)
@@ -159,6 +157,11 @@ class Ingame:
             self.user_box.append(Label(frame, width=10, height=2, bg='#b6f2da', relief='groove', font=font,
                                        text=user))
             self.user_box[-1].pack(side='left')
+
+    def display_time_box(self, time='10s'):
+        self.time_box = Label(self.window, relief='flat', text=time, font=tkinter.font.Font(size=14, weight='bold'),
+                              bg='white')
+        self.time_box.place(x=130, y=340)
 
 
 # if __name__ == "__main__":
