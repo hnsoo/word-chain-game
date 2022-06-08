@@ -1,14 +1,12 @@
 import socket
-import string
 import threading
 import pickle
 import time
-from typing import List, Any
 from main.server.krdict_api import kr_dict_api
 from datetime import datetime, timedelta
 
 
-class Main:
+class Main_server:
     # clients_list = []
     user_name_list = []
     current_room: list[list[socket.socket, "player name"]] = [[], [], [], []]  # 예시 [[(so, khs)], [], []]
@@ -28,15 +26,12 @@ class Main:
         [self.last_word_room.append("") for room in self.current_room]
         # init now_player (룸 갯수만큼 ""을 집어넣어줌)
         [self.now_player.append("") for room in self.current_room]
-
         [self.score.append([]) for room in self.current_room]
-
         [self.remain_time_room.append(None) for room in self.current_room]
         # 게임 순서
         self.order = [0, 0, 0, 0]
         # bind and listen
         self.create_listening_server()
-
 
     def create_listening_server(self):
         # 소켓 생성
@@ -49,10 +44,9 @@ class Main:
         self.main_server_socket.bind((HOST, PORT))
         print("Listening for incoming messages..")
         # 최대 20명까지 listen
-        self.set_interval(self.avangers_endgame, 0.2)
+        self.set_interval(self.end_game(), 0.2)
         self.main_server_socket.listen(20)
         self.receive_new_user()
-
 
     def receive_data(self, so, ip, port):
         print('start receive')
@@ -109,8 +103,7 @@ class Main:
                 users_name_word = ",".join([name[1] for name in self.current_room[room_num - 1]])
                 # print("유저 리스트 문자열", users_name_word)
                 # start:{start_word}:{who_is_first_player}
-
-                timer = datetime.now() + timedelta(seconds=120)
+                timer = datetime.now() + timedelta(seconds=50)
                 str_timer = timer.strftime("%d/%m/%Y/%H/%M/%S")
                 self.remain_time_room[room_num - 1] = timer
                 self.send_all(room_number=room_num, msg='start:{}:{}:{}:{}:'.format(
@@ -161,26 +154,16 @@ class Main:
                 for user in users:
                     user[0].sendall(input_data.encode('utf-8'))
 
-    def avangers_endgame(self):
+    def end_game(self):
         for room_idx, finish_time in enumerate(self.remain_time_room):
             now = datetime.now()
             if finish_time is not None:
                 if finish_time < now:
-                    # room = [[["qwe", "ss"], ["qwdqwd", "ww"]]]
-                    # score = [[30, 50]]
-                    # data = "finish:{}".format(",".join(["{}님 {}점".format(room[0][idx][1], player) for idx, player in enumerate(score[0])]))
-                    # print(data)
-
                     msg = ",".join(
                         ["{}님 {}점".format(self.current_room[room_idx][uid][1], player) for uid, player in
                          enumerate(self.score[room_idx])])
                     data = "finish:{}".format(msg)
-
-
-                    print("msg .... ", msg)
-
                     print(room_idx, "   ", finish_time, "     ", finish_time < now,  "     ", data)
-
                     self.send_all(room_idx + 1, data)
                     self.remain_time_room[room_idx] = None
 
@@ -189,11 +172,10 @@ class Main:
         for user in self.current_room[room_number - 1]:
             user[0].send(msg_enc)
 
-
     def set_interval(self, func, sec):
         def func_wrapper():
-            self.set_interval(self.avangers_endgame, sec)
-            self.avangers_endgame()
+            self.set_interval(self.end_game(), sec)
+            self.end_game()
 
         t = threading.Timer(sec, func_wrapper)
         t.start()
@@ -205,5 +187,6 @@ class Main:
                 return idx
         return -1
 
+
 if __name__ == '__main__':
-    main = Main()
+    main = Main_server()

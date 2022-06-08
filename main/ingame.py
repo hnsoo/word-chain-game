@@ -1,8 +1,7 @@
-import pickle
 import threading
 import tkinter.font
 from tkinter import *
-from datetime import datetime, timedelta
+from datetime import datetime
 
 
 class Ingame:
@@ -22,9 +21,7 @@ class Ingame:
         self.word_label = None
         self.time_box = None
         self.init_gui()
-
         self.timer = None
-
         self.listen_for_incoming_messages_in_a_thread()
 
     def listen_for_incoming_messages_in_a_thread(self):
@@ -100,6 +97,8 @@ class Ingame:
 
             elif "finish" in message:
                 result = message.split(":")[1]
+                self.chat_transcript_area.insert('end', result + '\n')
+                self.chat_transcript_area.yview(END)
                 print(result)
 
             else:
@@ -134,7 +133,7 @@ class Ingame:
         # 시간
         self.display_time_box(seconds=0)
         # 나가기
-        self.exit = Button(self.window, text='나가기', anchor='center', width=20, height=3, bg='grey', fg='white')
+        self.exit = Button(self.window, text=self.name, anchor='center', width=10, height=2, bg='grey', fg='white')
         self.exit.place(x=0, y=0)
 
     def display_chat_entry_box(self):

@@ -1,4 +1,7 @@
 import requests, hgtk, random
+import urllib3
+
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 # 이미 있는 단어 알기위해 단어목록 저장
 history = []
@@ -7,7 +10,7 @@ playing = True
 # 키 발급은 https://krdict.korean.go.kr/openApi/openApiInfo
 apikey = '92C86E68D846EBC1DA3DE4EF202675F6'
 
-first_word_list = ['바보', '개발', '개발자', '군인', '얼굴', '조개', '향수', '영양제', '제식']
+first_word_list = ['바보', '개발', '개발자', '향수', '영양제', '제식']
 blacklist = []
 
 

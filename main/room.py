@@ -1,4 +1,3 @@
-import socket
 import pickle
 import time
 from tkinter import *
