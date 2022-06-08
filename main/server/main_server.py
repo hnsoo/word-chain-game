@@ -2,7 +2,7 @@ import socket
 import threading
 import pickle
 import time
-from main.server.krdict_api import kr_dict_api
+from kr_dict_api import *
 from datetime import datetime, timedelta
 
 
